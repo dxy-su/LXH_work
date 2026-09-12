@@ -1,0 +1,16 @@
+{
+  "start_time": "09:00",
+  "end_time": "21:00",
+  "daily_salary": 300.0,
+  "workdays": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "ark_api_key": "",
+  "deepseek_api_key": "",
+  "api_base_url": "https://api.deepseek.com",
+  "api_model": "deepseek-chat"
+}

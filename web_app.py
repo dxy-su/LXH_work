@@ -1,0 +1,69 @@
+import json
+import os
+from datetime import datetime
+from flask import Flask, jsonify, render_template, request
+
+app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
+
+DEFAULT_CONFIG = {
+    "start_time": "09:00", "end_time": "18:00", "daily_salary": 300.0,
+    "workdays": [0, 1, 2, 3, 4], "api_base_url": "https://api.deepseek.com",
+    "api_model": "deepseek-chat",
+}
+
+
+def load_config():
+    try:
+        with open(CONFIG_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        config = {**DEFAULT_CONFIG, **data}
+        config["daily_salary"] = float(config["daily_salary"])
+        config["workdays"] = [int(x) for x in config["workdays"]]
+        return config
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        return DEFAULT_CONFIG.copy()
+
+
+@app.get("/")
+def index():
+    images = [
+        name for name in os.listdir(BASE_DIR)
+        if name.lower().endswith((".jpg", ".jpeg", ".png", ".gif"))
+    ]
+    return render_template("index.html", images=images)
+
+
+@app.get("/api/config")
+def config():
+    return jsonify(load_config())
+
+
+@app.post("/api/config")
+def save_config():
+    current = load_config()
+    data = request.get_json(silent=True) or {}
+    try:
+        start, end = str(data.get("start_time", current["start_time"])), str(data.get("end_time", current["end_time"]))
+        salary = float(data.get("daily_salary", current["daily_salary"]))
+        workdays = [int(x) for x in data.get("workdays", current["workdays"])]
+        datetime.strptime(start, "%H:%M"); datetime.strptime(end, "%H:%M")
+        if salary < 0 or end <= start or not all(0 <= x <= 6 for x in workdays):
+            raise ValueError
+    except (ValueError, TypeError):
+        return jsonify({"error": "设置无效"}), 400
+    current.update({"start_time": start, "end_time": end, "daily_salary": salary, "workdays": workdays})
+    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+        json.dump(current, f, ensure_ascii=False, indent=2)
+    return jsonify(current)
+
+
+@app.get("/media/<path:name>")
+def media(name):
+    from flask import send_from_directory
+    return send_from_directory(BASE_DIR, name)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)
