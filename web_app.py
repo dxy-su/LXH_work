@@ -64,6 +64,10 @@ def media(name):
     from flask import send_from_directory
     return send_from_directory(BASE_DIR, name)
 
+@app.get("/api/encouragement")
+def encouragement():
+    return jsonify({"text": "今天也辛苦了，稳稳走好自己的路。"})
+
 
 @app.get("/sw.js")
 def service_worker():
