@@ -1,1 +1,1 @@
-{"name":"打工计时器","short_name":"工作计时","start_url":"/","display":"standalone","background_color":"#f1f3f7","theme_color":"#c9b27a","icons":[]}
+{"name":"打工计时器","short_name":"工作计时","start_url":"/","display":"standalone","background_color":"#f1f3f7","theme_color":"#c9b27a","icons":[{"src":"/static/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
