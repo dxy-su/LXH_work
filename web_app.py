@@ -1,6 +1,7 @@
 import json
 import os
-import random
+import urllib.error
+import urllib.request
 from datetime import datetime
 from flask import Flask, jsonify, render_template, request
 
@@ -65,28 +66,62 @@ def media(name):
     from flask import send_from_directory
     return send_from_directory(BASE_DIR, name)
 
-@app.get("/api/encouragement")
-def encouragement():
-    messages = (
-        "今天也辛苦了，稳稳走好自己的路。",
-        "别怕，我在，慢慢走也能抵达前方。",
-        "累了就歇一会儿，明天依然有光。",
-        "先好好吃饭，剩下的路我们一起走。",
-        "你已经做得很好，今天也值得被肯定。",
-        "风雨会过去，你守住的希望不会熄灭。",
-        "下班去散散心，今天的你辛苦了。",
-        "没关系，我陪着你，一切都会好起来。",
+@app.post("/api/chat")
+def chat():
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        return jsonify({"error": "AI 尚未配置，请在 Render 中设置 OPENAI_API_KEY。"}), 503
+
+    data = request.get_json(silent=True) or {}
+    messages = data.get("messages", [])
+    if not isinstance(messages, list):
+        return jsonify({"error": "对话格式无效。"}), 400
+
+    clean_messages = []
+    for message in messages[-12:]:
+        if not isinstance(message, dict) or message.get("role") not in ("user", "assistant"):
+            continue
+        content = str(message.get("content", "")).strip()[:2000]
+        if content:
+            clean_messages.append({"role": message["role"], "content": content})
+    if not clean_messages or clean_messages[-1]["role"] != "user":
+        return jsonify({"error": "请输入想说的话。"}), 400
+
+    payload = {
+        "model": os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"),
+        "instructions": "你是温暖、简洁且真诚的聊天伙伴。使用中文回应，关注用户的工作与生活感受；不要冒充真人，也不要过度说教。",
+        "input": clean_messages,
+        "max_output_tokens": 300,
+    }
+    api_request = urllib.request.Request(
+        "https://api.openai.com/v1/responses",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
+        method="POST",
     )
-    current = request.args.get("current", "")
-    choices = tuple(message for message in messages if message != current) or messages
-    return jsonify({"text": random.choice(choices)})
+    try:
+        with urllib.request.urlopen(api_request, timeout=60) as response:
+            result = json.loads(response.read().decode("utf-8"))
+        text = result.get("output_text", "").strip()
+        if not text:
+            for output in result.get("output", []):
+                for content in output.get("content", []):
+                    if content.get("type") == "output_text" and content.get("text"):
+                        text += content["text"]
+        if not text.strip():
+            raise ValueError("empty response")
+        return jsonify({"text": text.strip()})
+    except urllib.error.HTTPError as error:
+        return jsonify({"error": f"AI 请求失败（{error.code}），请检查 API Key 和模型设置。"}), 502
+    except (OSError, ValueError, json.JSONDecodeError):
+        return jsonify({"error": "AI 暂时无法回应，请稍后再试。"}), 502
 
 
 @app.get("/sw.js")
 def service_worker():
     from flask import Response
-    script = """const CACHE='work-timer-v3';
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/','/static/style.css','/static/app.js','/static/manifest.json']))));
+    script = """const CACHE='work-timer-v4';
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/','/static/style.css?v=3','/static/chat.css?v=4','/static/app.js?v=4','/static/manifest.json']))));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
 self.addEventListener('fetch',e=>{
   if(e.request.url.includes('/api/')) return;

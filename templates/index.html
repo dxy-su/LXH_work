@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#c9b27a">
   <link rel="manifest" href="/static/manifest.json">
   <link rel="stylesheet" href="/static/style.css?v=3">
+  <link rel="stylesheet" href="/static/chat.css?v=4">
   <title>打工计时器</title>
 </head>
 <body>
@@ -21,7 +22,7 @@
         <div id="status" class="status">正在计算...</div>
         <div id="income" class="income">¥0.00</div>
         <div class="caption">今日收入</div>
-        <button id="encouragement" class="encouragement">点击这句话，收取一份来自灵质空间的小鼓励</button>
+        <button id="encouragement" class="encouragement">点击这里，和 AI 聊聊今天</button>
       </div>
       <div class="visual"><img id="hero" alt="今日图片"></div>
     </section>
@@ -35,7 +36,15 @@
     <label>工作日<div id="days" class="days"></div></label>
     <div class="actions"><button id="cancel">取消</button><button id="save">保存</button></div>
   </dialog>
+  <dialog id="chat-dialog" class="chat-dialog">
+    <div class="chat-head"><h2>AI 陪伴</h2><button id="chat-close" title="关闭">×</button></div>
+    <div id="chat-messages" class="chat-messages"><div class="message assistant">今天过得怎么样？我在这里听你说。</div></div>
+    <form id="chat-form" class="chat-form">
+      <input id="chat-input" maxlength="2000" autocomplete="off" placeholder="输入想说的话..." aria-label="聊天内容">
+      <button id="chat-send" type="submit">发送</button>
+    </form>
+  </dialog>
   <script>window.IMAGES={{ images|tojson }};</script>
-  <script src="/static/app.js?v=3"></script>
+  <script src="/static/app.js?v=4"></script>
 </body>
 </html>
