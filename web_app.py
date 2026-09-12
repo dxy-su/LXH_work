@@ -68,9 +68,11 @@ def media(name):
 
 @app.post("/api/chat")
 def chat():
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    deepseek_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
+    openai_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = deepseek_key or openai_key
     if not api_key:
-        return jsonify({"error": "AI 尚未配置，请在 Render 中设置 OPENAI_API_KEY。"}), 503
+        return jsonify({"error": "AI 尚未配置，请在 Render 中设置 DEEPSEEK_API_KEY。"}), 503
 
     data = request.get_json(silent=True) or {}
     messages = data.get("messages", [])
@@ -87,14 +89,15 @@ def chat():
     if not clean_messages or clean_messages[-1]["role"] != "user":
         return jsonify({"error": "请输入想说的话。"}), 400
 
-    payload = {
-        "model": os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"),
-        "instructions": "你是温暖、简洁且真诚的聊天伙伴。使用中文回应，关注用户的工作与生活感受；不要冒充真人，也不要过度说教。",
-        "input": clean_messages,
-        "max_output_tokens": 300,
-    }
+    instructions = "你是温暖、简洁且真诚的聊天伙伴。使用中文回应，关注用户的工作与生活感受；不要冒充真人，也不要过度说教。"
+    if deepseek_key:
+        payload = {"model": os.environ.get("DEEPSEEK_MODEL", "deepseek-chat"), "messages": [{"role": "system", "content": instructions}, *clean_messages], "temperature": 0.8, "max_tokens": 300}
+        endpoint = "https://api.deepseek.com/chat/completions"
+    else:
+        payload = {"model": os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"), "instructions": instructions, "input": clean_messages, "max_output_tokens": 300}
+        endpoint = "https://api.openai.com/v1/responses"
     api_request = urllib.request.Request(
-        "https://api.openai.com/v1/responses",
+        endpoint,
         data=json.dumps(payload).encode("utf-8"),
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
         method="POST",
@@ -102,8 +105,11 @@ def chat():
     try:
         with urllib.request.urlopen(api_request, timeout=60) as response:
             result = json.loads(response.read().decode("utf-8"))
-        text = result.get("output_text", "").strip()
-        if not text:
+        if deepseek_key:
+            text = result.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+        else:
+            text = result.get("output_text", "").strip()
+        if not text and not deepseek_key:
             for output in result.get("output", []):
                 for content in output.get("content", []):
                     if content.get("type") == "output_text" and content.get("text"):
