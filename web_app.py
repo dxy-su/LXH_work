@@ -62,6 +62,7 @@ SCENES = {
     "夜晚": "现在是夜晚。语气慢下来，陪对方整理情绪，不把聊天变成说教。",
     "深夜": "现在是深夜。减少喧闹和玩笑，允许沉默与疲惫，温和地陪伴，并在合适时提醒休息。",
 }
+CHAT_HISTORY_LIMIT = 10
 
 def current_scene():
     hour = datetime.now().hour
@@ -149,7 +150,8 @@ def chat():
         return jsonify({"error": "对话格式无效。"}), 400
 
     clean_messages = []
-    for message in messages[-12:]:
+    # Keep the browser's full transcript, but send only the latest messages to the model.
+    for message in messages[-CHAT_HISTORY_LIMIT:]:
         if not isinstance(message, dict) or message.get("role") not in ("user", "assistant"):
             continue
         content = str(message.get("content", "")).strip()[:2000]
@@ -209,8 +211,8 @@ def chat():
 @app.get("/sw.js")
 def service_worker():
     from flask import Response
-    script = """const CACHE='work-timer-v6';
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/','/static/style.css?v=3','/static/chat.css?v=6','/static/app.js?v=6','/static/manifest.json']))));
+    script = """const CACHE='work-timer-v7';
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/','/static/style.css?v=3','/static/chat.css?v=6','/static/app.js?v=7','/static/manifest.json']))));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
 self.addEventListener('fetch',e=>{
   if(e.request.url.includes('/api/')) return;
