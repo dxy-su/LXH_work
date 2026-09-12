@@ -1,1 +1,41 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#c9b27a"><link rel="manifest" href="/static/manifest.json"><link rel="stylesheet" href="/static/style.css"><title>打工计时器</title></head><body><main class="card"><div class="top"><div><div class="brand">WORK TIMER</div><div class="subtitle">今日工作状态</div></div><button id="install" class="icon" hidden>⌄</button></div><section class="content"><div class="stats"><div id="weekday" class="weekday">今天 · 工作日</div><div id="countdown" class="countdown">00:00:00</div><div id="status" class="status">正在计算...</div><div id="income" class="income">¥0.00</div><div class="caption">今日收入</div><button id="encouragement" class="encouragement">点击这句话，收取一份来自灵质空间的小鼓励</button></div><div class="visual"><img id="hero" alt="今日图片"></div></section><button id="settings" class="settings">⚙</button></main><dialog id="dialog"><h2>计时器设置</h2><label>上班时间<input id="start" type="time"></label><label>下班时间<input id="end" type="time"></label><label>日薪（元）<input id="salary" type="number" min="0" step="0.01"></label><label>工作日<div id="days" class="days"></div></label><div class="actions"><button id="cancel">取消</button><button id="save">保存</button></div></dialog><script>window.IMAGES={{ images|tojson }};</script><script src="/static/app.js"></script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#c9b27a">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="stylesheet" href="/static/style.css?v=3">
+  <title>打工计时器</title>
+</head>
+<body>
+  <main class="card">
+    <div class="top">
+      <div><div class="brand">WORK TIMER</div><div class="subtitle">今日工作状态</div></div>
+      <button id="install" class="icon" hidden title="安装到桌面">&#8681;</button>
+    </div>
+    <section class="content">
+      <div class="stats">
+        <div id="weekday" class="weekday">今天 · 工作日</div>
+        <div id="countdown" class="countdown">00:00:00</div>
+        <div id="status" class="status">正在计算...</div>
+        <div id="income" class="income">¥0.00</div>
+        <div class="caption">今日收入</div>
+        <button id="encouragement" class="encouragement">点击这句话，收取一份来自灵质空间的小鼓励</button>
+      </div>
+      <div class="visual"><img id="hero" alt="今日图片"></div>
+    </section>
+    <button id="settings" class="settings" title="计时器设置">&#9881;</button>
+  </main>
+  <dialog id="dialog">
+    <h2>计时器设置</h2>
+    <label>上班时间<input id="start" type="time"></label>
+    <label>下班时间<input id="end" type="time"></label>
+    <label>日薪（元）<input id="salary" type="number" min="0" step="0.01"></label>
+    <label>工作日<div id="days" class="days"></div></label>
+    <div class="actions"><button id="cancel">取消</button><button id="save">保存</button></div>
+  </dialog>
+  <script>window.IMAGES={{ images|tojson }};</script>
+  <script src="/static/app.js?v=3"></script>
+</body>
+</html>

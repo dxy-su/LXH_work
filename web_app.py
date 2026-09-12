@@ -1,5 +1,6 @@
 import json
 import os
+import random
 from datetime import datetime
 from flask import Flask, jsonify, render_template, request
 
@@ -66,15 +67,31 @@ def media(name):
 
 @app.get("/api/encouragement")
 def encouragement():
-    return jsonify({"text": "今天也辛苦了，稳稳走好自己的路。"})
+    messages = (
+        "今天也辛苦了，稳稳走好自己的路。",
+        "别怕，我在，慢慢走也能抵达前方。",
+        "累了就歇一会儿，明天依然有光。",
+        "先好好吃饭，剩下的路我们一起走。",
+        "你已经做得很好，今天也值得被肯定。",
+        "风雨会过去，你守住的希望不会熄灭。",
+        "下班去散散心，今天的你辛苦了。",
+        "没关系，我陪着你，一切都会好起来。",
+    )
+    current = request.args.get("current", "")
+    choices = tuple(message for message in messages if message != current) or messages
+    return jsonify({"text": random.choice(choices)})
 
 
 @app.get("/sw.js")
 def service_worker():
     from flask import Response
-    script = """const CACHE='work-timer-v1';
+    script = """const CACHE='work-timer-v3';
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/','/static/style.css','/static/app.js','/static/manifest.json']))));
-self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
+self.addEventListener('fetch',e=>{
+  if(e.request.url.includes('/api/')) return;
+  e.respondWith(fetch(e.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return r}).catch(()=>caches.match(e.request)));
+});
 """
     return Response(script, mimetype="application/javascript")
 
