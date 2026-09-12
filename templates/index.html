@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#c9b27a">
   <link rel="manifest" href="/static/manifest.json">
   <link rel="stylesheet" href="/static/style.css?v=3">
-  <link rel="stylesheet" href="/static/chat.css?v=4">
+  <link rel="stylesheet" href="/static/chat.css?v=5">
   <title>打工计时器</title>
 </head>
 <body>
@@ -37,14 +37,28 @@
     <div class="actions"><button id="cancel">取消</button><button id="save">保存</button></div>
   </dialog>
   <dialog id="chat-dialog" class="chat-dialog">
-    <div class="chat-head"><h2>AI 陪伴</h2><button id="chat-close" title="关闭">×</button></div>
-    <div id="chat-messages" class="chat-messages"><div class="message assistant">今天过得怎么样？我在这里听你说。</div></div>
+    <div class="chat-head">
+      <div><h2 id="chat-title">和小黑聊聊</h2><span>AI 角色对话</span></div>
+      <button id="chat-close" title="关闭" aria-label="关闭">×</button>
+    </div>
+    <div class="character-bar">
+      <label for="character">选择角色</label>
+      <select id="character" aria-label="选择聊天角色">
+        <option value="小黑">小黑</option>
+        <option value="无限">无限</option>
+        <option value="鹿野">鹿野</option>
+        <option value="风息">风息</option>
+        <option value="哪吒">哪吒</option>
+      </select>
+    </div>
+    <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
     <form id="chat-form" class="chat-form">
       <input id="chat-input" maxlength="2000" autocomplete="off" placeholder="输入想说的话..." aria-label="聊天内容">
       <button id="chat-send" type="submit">发送</button>
     </form>
+    <div class="chat-note">非官方 AI 角色对话 · 内容为原创生成</div>
   </dialog>
   <script>window.IMAGES={{ images|tojson }};</script>
-  <script src="/static/app.js?v=4"></script>
+  <script src="/static/app.js?v=5"></script>
 </body>
 </html>
