@@ -65,5 +65,15 @@ def media(name):
     return send_from_directory(BASE_DIR, name)
 
 
+@app.get("/sw.js")
+def service_worker():
+    from flask import Response
+    script = """const CACHE='work-timer-v1';
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/','/static/style.css','/static/app.js','/static/manifest.json']))));
+self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
+"""
+    return Response(script, mimetype="application/javascript")
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)
