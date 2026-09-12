@@ -3,9 +3,6 @@
 .chat-head h2 { margin: 0; font-size: 17px; }
 .chat-head span { display: block; margin-top: 2px; color: #8a8f9e; font-size: 11px; }
 .chat-head button { border: 0; background: transparent; font-size: 25px; color: #687086; cursor: pointer; }
-.character-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; background: #fff; border-bottom: 1px solid #eceef3; }
-.character-bar label { color: #707687; font-size: 12px; }
-.character-bar select { min-width: 112px; border: 1px solid #d9dce5; border-radius: 7px; padding: 6px 28px 6px 10px; background: #fafbfc; color: #303442; font: inherit; cursor: pointer; }
 .chat-messages { height: 320px; overflow-y: auto; padding: 16px; background: #f7f8fb; display: flex; flex-direction: column; gap: 10px; }
 .message { max-width: 84%; padding: 9px 12px; border-radius: 12px; line-height: 1.55; font-size: 14px; white-space: pre-wrap; }
 .message.assistant { align-self: flex-start; background: #fff; border: 1px solid #e2e5ec; }
